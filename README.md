@@ -29,7 +29,7 @@ public static void Disassemble()
   // Pass a stream to the decoder for decoding. Note that the entire stream is decoded at once.
   // Streams passed to it must be deterministic and seekable (for example, a file stream).
   DisassemblyMap map;
-  using (FileStream fs = new FileStream("m68k-binary.bin", FileMode.Open))
+  using (FileStream fs = new FileStream("d:\\test.dat2", FileMode.Open))
     map = decoder.Decode(fs);
 
   // The created map file can now be used to print disassembly information, let's do that:
@@ -37,14 +37,14 @@ public static void Disassemble()
   var rs = new RenderingSettings(useHex: true, characterCasing: RenderingSettings.InstructionCase.Lower);
 
   // ... then use them to render the output
-  foreach(var data in map.Data.OrderBy(x,x=>x.Address))
+  foreach (var data in map.Data.Values.OrderBy(x => x.Address))
     Console.WriteLine($"{data.RenderMnemonic(rs),-20} {data.RenderOperands(rs)}");
 
   // This produces output like (of course depending on what you've put in):
   // move.l    d0,(a0)+
   // lea       20(a0),d1
   // moveq     #0,d0
-  // etc.
+  // etc.  
 }
 ```
 

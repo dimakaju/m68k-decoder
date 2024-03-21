@@ -37,14 +37,14 @@ public static void Disassemble()
   var rs = new RenderingSettings(useHex: true, characterCasing: RenderingSettings.InstructionCase.Lower);
 
   // ... then use them to render the output
-  foreach(var data in map.Data.OrderBy(x,x=>x.Address))
+  foreach (var data in map.Data.Values.OrderBy(x => x.Address))
     Console.WriteLine($"{data.RenderMnemonic(rs),-20} {data.RenderOperands(rs)}");
 
   // This produces output like (of course depending on what you've put in):
   // move.l    d0,(a0)+
   // lea       20(a0),d1
   // moveq     #0,d0
-  // etc.
+  // etc.  
 }
 ```
 

@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Dimakaju.M68k.Test": {
-      "commandName": "Project",
-      "commandLineArgs": "new d:\\Example.bb --base=60000"
-    }
-  }
-}

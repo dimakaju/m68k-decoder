@@ -29,7 +29,7 @@ public static void Disassemble()
   // Pass a stream to the decoder for decoding. Note that the entire stream is decoded at once.
   // Streams passed to it must be deterministic and seekable (for example, a file stream).
   DisassemblyMap map;
-  using (FileStream fs = new FileStream("d:\\test.dat2", FileMode.Open))
+  using (FileStream fs = new FileStream("m68k-binary.bin", FileMode.Open))
     map = decoder.Decode(fs);
 
   // The created map file can now be used to print disassembly information, let's do that:

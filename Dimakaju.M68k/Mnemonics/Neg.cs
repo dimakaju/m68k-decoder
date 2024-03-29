@@ -25,9 +25,14 @@ using Dimakaju.M68k.Tools;
 
 namespace Dimakaju.M68k.Mnemonics
 {
-    internal class Neg : MnemonicDecoder
+  internal class Neg : MnemonicDecoder
   {
     public override MnemonicInfo Type => MnemonicInfo.Neg;
+
+    public override bool IsRelevant(ushort data)
+      => (data & 0b1111111111000000) == 0b01000100_00_000000
+      || (data & 0b1111111111000000) == 0b01000100_01_000000
+      || (data & 0b1111111111000000) == 0b01000100_10_000000;
 
     protected override Instruction? TryDecoding(BitStreamReader reader)
     {

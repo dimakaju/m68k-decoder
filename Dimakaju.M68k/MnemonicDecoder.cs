@@ -58,6 +58,11 @@ namespace Dimakaju.M68k
       }
     }
 
+    public virtual bool IsRelevant(ushort data)
+    {
+      return true;
+    }
+
     protected Operand? DecodeOperand(BitStreamReader reader, int ea, uint checkmask)
     {
       // Checkmask = Dn,An,(An),(An)+,-(An),(d16,An),(d8,An,Xn),(xxx).w,(xxx).l,imm,(d16,pc),(d8,pc,Xn)

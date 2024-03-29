@@ -28,6 +28,12 @@ namespace Dimakaju.M68k.Mnemonics
 {
   internal abstract class Asx : MnemonicDecoder
   {
+    public override bool IsRelevant(ushort data)
+      => (data & 0b1111000011011000) == 0b11100000_00_000000
+      || (data & 0b1111000011011000) == 0b11100000_01_000000
+      || (data & 0b1111000011011000) == 0b11100000_10_000000
+      || (data & 0b1111111011000000) == 0b11100000_11_000000;
+
     protected override Instruction? TryDecoding(BitStreamReader reader)
     {
       if (reader.Read(4) != 0b1110)

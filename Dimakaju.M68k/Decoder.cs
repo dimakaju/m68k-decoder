@@ -21,6 +21,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -39,7 +40,12 @@ namespace Dimakaju.M68k
     public Decoder(DecoderSettings settings)
     {
       Settings = settings ?? throw new ArgumentNullException(nameof(settings));
-      Decoders = InitializeDecoders();
+
+      DecoderLookupTable = new List<MnemonicDecoder>[256 * 256];
+      for (int i = 0; i < 256 * 256; i++)
+        DecoderLookupTable[i] = new List<MnemonicDecoder>();
+
+      BuildDecoderLookupTable();
     }
 
     /// <summary>
@@ -47,7 +53,7 @@ namespace Dimakaju.M68k
     /// </summary>
     public DecoderSettings Settings { get; }
 
-    private IReadOnlyList<MnemonicDecoder> Decoders { get; }
+    private List<MnemonicDecoder>[] DecoderLookupTable { get; }
 
     /// <summary>
     /// Decodes a stream creating a disassembly map object. The stream needs to be seekable, must be readable and must be deterministic, e.g. a file-stream.
@@ -532,9 +538,10 @@ namespace Dimakaju.M68k
       while (reader.IsFinished() == false)
       {
         Instruction? result = null;
-        for (int i = 0; i < Decoders.Count; i++)
+        var possibleDecoders = FindDecoder(reader);
+        for (int i = 0; i < possibleDecoders.Count; i++)
         {
-          var decoder = Decoders[i];
+          var decoder = possibleDecoders[i];
           result = decoder.Decode(reader, Settings);
           if (result != null)
           {
@@ -570,19 +577,44 @@ namespace Dimakaju.M68k
       }
     }
 
-    private IReadOnlyList<MnemonicDecoder> InitializeDecoders()
+    private List<MnemonicDecoder> FindDecoder(BitStreamReader reader)
     {
-      List<MnemonicDecoder> decoders = new List<MnemonicDecoder>();
-      var types = Assembly.GetExecutingAssembly().GetTypes().Where(x => typeof(MnemonicDecoder).IsAssignableFrom(x) && x.IsAbstract == false);
+      try
+      {
+        reader.TakeSnapshot();
+        int upper = reader.Read(8);
+        if (reader.IsFinished() == false)
+        {
+          int lower = reader.Read(8);
+          int mask = upper << 8 | lower;
+          return DecoderLookupTable[mask];
+        }
+        else
+        {
+          return new List<MnemonicDecoder>();
+        }
+      }
+      finally
+      {
+        reader.RevertToSnapshot();
+      }
+    }
 
+    private void BuildDecoderLookupTable()
+    {
+      var types = Assembly.GetExecutingAssembly().GetTypes().Where(x => typeof(MnemonicDecoder).IsAssignableFrom(x) && x.IsAbstract == false);
       foreach (var dtype in types)
       {
-        var decoder = Activator.CreateInstance(dtype);
+        var decoder = Activator.CreateInstance(dtype) as MnemonicDecoder;
         if (decoder != null)
-          decoders.Add((MnemonicDecoder)decoder);
+        {
+          for (int i = 0; i < 256 * 256; i++)
+          {
+            if (decoder.IsRelevant((ushort)i) == true)
+              DecoderLookupTable[i].Add(decoder);
+          }
+        }
       }
-
-      return decoders;
     }
   }
 }

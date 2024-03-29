@@ -1,6 +1,7 @@
 ﻿using Dimakaju.M68k;
 using Dimakaju.M68k.Test;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -48,10 +49,18 @@ namespace DecoderTest
       {
         Decoder decoder = new Decoder(new DecoderSettings(baseAddress));
         DisassemblyMap map;
+        
+        Stopwatch sw = new Stopwatch();        
+        sw.Start();
+
         using (FileStream fs = new FileStream(file, FileMode.Open))
           map = decoder.Decode(fs);
 
+        sw.Stop();
+        Console.WriteLine($"Initial decoding performed in {(double)sw.ElapsedMilliseconds / 1000.0D:f2}s.");
+
         DoDisassembler(decoder, map);
+
       }
       catch (Exception x)
       {
@@ -66,7 +75,7 @@ namespace DecoderTest
       {
         DisassemblyMap map;
         using (FileStream fs = new FileStream(mapfile, FileMode.Open))
-           map = new DisassemblyMap(fs);
+          map = new DisassemblyMap(fs);
 
         Decoder decoder = new Decoder(new DecoderSettings(map.StartAddress));
         DoDisassembler(decoder, map);
@@ -80,8 +89,6 @@ namespace DecoderTest
     // Disassembler main-loop
     static void DoDisassembler(Decoder decoder, DisassemblyMap map)
     {
-      Console.Clear();
-      PrintMap(map);
       while (true)
       {
         Help.Prompt();
@@ -89,22 +96,30 @@ namespace DecoderTest
         if (cmd == null)
           continue;
 
+        bool displayTime = true;
+        Stopwatch sw = new Stopwatch();
+        sw.Restart();
+
         if (cmd == "?")
         {
           Help.ShowHelp();
+          displayTime = false;
         }
         else if (cmd == "c")
         {
           Console.Clear();
+          displayTime = false;
         }
         else if (cmd == "x")
         {
+          displayTime = false;
           break;
         }
         else if (cmd == "p")
         {
           Console.Clear();
           PrintMap(map);
+          displayTime = false;
         }
         else if (cmd.StartsWith("sm"))
         {
@@ -233,7 +248,12 @@ namespace DecoderTest
         else
         {
           Console.WriteLine("?");
+          displayTime = false;
         }
+
+        sw.Stop();
+        if (displayTime == true)
+          Console.WriteLine($"Done. Elapsetd time = {(double)sw.ElapsedMilliseconds / 1000.0D:f2}s");
       }
     }
 

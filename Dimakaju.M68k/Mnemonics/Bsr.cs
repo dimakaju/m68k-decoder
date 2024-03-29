@@ -30,6 +30,9 @@ namespace Dimakaju.M68k.Mnemonics
   {
     public override MnemonicInfo Type => MnemonicInfo.Bsr;
 
+    public override bool IsRelevant(ushort data)
+      => (data & 0b1111111100000000) == 0b0110000100000000;
+
     protected override Instruction? TryDecoding(BitStreamReader reader)
     {
       if (reader.Read(8) != 0b01100001)

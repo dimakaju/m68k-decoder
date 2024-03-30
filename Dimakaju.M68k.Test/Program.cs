@@ -57,7 +57,7 @@ namespace DecoderTest
           map = decoder.Decode(fs);
 
         sw.Stop();
-        Console.WriteLine($"Initial decoding performed in {(double)sw.ElapsedMilliseconds / 1000.0D:f2}s.");
+        Console.WriteLine($"Initial decoding performed in {sw.ElapsedMilliseconds}ms.");
 
         DoDisassembler(decoder, map);
 
@@ -253,7 +253,7 @@ namespace DecoderTest
 
         sw.Stop();
         if (displayTime == true)
-          Console.WriteLine($"Done. Elapsetd time = {(double)sw.ElapsedMilliseconds / 1000.0D:f2}s");
+          Console.WriteLine($"Done. Elapsed time = {sw.ElapsedMilliseconds}ms.");
       }
     }
 

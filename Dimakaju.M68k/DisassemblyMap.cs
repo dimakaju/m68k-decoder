@@ -303,7 +303,7 @@ namespace Dimakaju.M68k
     {
       foreach (var label in Labels.Values.Where(x => x.IsOutOfRange == false).OrderBy(x => x.Address))
       {
-        if (Data.Any(x => x.Key == label.Address) == false)
+        if (Data.TryGetValue(label.Address, out _) == false)
         {
           var dlabel1 = Labels.Values.Where(x => x.Address < label.Address && x.DisplacementLabel == null).FirstOrDefault();
           if (dlabel1 != null)
